@@ -36,16 +36,27 @@ mod tests {
     use crate::thermometer::SmartThermometer;
 
     #[test]
-    fn wraps_thermometer() {
+    fn thermometer_variant_exposes_temperature() {
         let d = SmartDevice::Thermometer(SmartThermometer::new("Т".to_string(), 20.0));
         d.report();
-        assert!(matches!(d, SmartDevice::Thermometer(_)));
+        match d {
+            SmartDevice::Thermometer(t) => assert_eq!(t.temperature(), 20.0),
+            SmartDevice::Socket(_) => panic!("ожидался термометр"),
+        }
     }
 
     #[test]
-    fn wraps_socket() {
-        let d = SmartDevice::Socket(SmartSocket::new("Р".to_string(), 50.0));
+    fn socket_variant_reflects_state() {
+        let mut socket = SmartSocket::new("Р".to_string(), 50.0);
+        socket.turn_on();
+        let d = SmartDevice::Socket(socket);
         d.report();
-        assert!(matches!(d, SmartDevice::Socket(_)));
+        match d {
+            SmartDevice::Socket(s) => {
+                assert!(s.is_on());
+                assert_eq!(s.current_power(), 50.0);
+            }
+            SmartDevice::Thermometer(_) => panic!("ожидалась розетка"),
+        }
     }
 }
