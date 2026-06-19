@@ -10,3 +10,6 @@ path = "src/lib.rs"
 [[bin]]
 name = "smart-home"
 path = "src/main.rs"
+
+[lints.clippy]
+all = "warn"
