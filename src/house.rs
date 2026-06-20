@@ -6,14 +6,17 @@ pub struct SmartHouse {
 }
 
 impl SmartHouse {
+    #[must_use]
     pub fn new(name: String, rooms: Vec<Room>) -> Self {
         Self { name, rooms }
     }
 
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    #[must_use]
     pub fn room(&self, index: usize) -> &Room {
         &self.rooms[index]
     }
@@ -65,9 +68,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "index out of bounds")]
     fn room_out_of_bounds_panics() {
         let house = sample_house();
-        house.room(99);
+        let _ = house.room(99);
     }
 }

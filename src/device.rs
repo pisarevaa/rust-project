@@ -40,7 +40,9 @@ mod tests {
         let d = SmartDevice::Thermometer(SmartThermometer::new("Т".to_string(), 20.0));
         d.report();
         match d {
-            SmartDevice::Thermometer(t) => assert_eq!(t.temperature(), 20.0),
+            SmartDevice::Thermometer(t) => {
+                assert!((t.temperature() - 20.0).abs() < f64::EPSILON);
+            }
             SmartDevice::Socket(_) => panic!("ожидался термометр"),
         }
     }
@@ -54,7 +56,7 @@ mod tests {
         match d {
             SmartDevice::Socket(s) => {
                 assert!(s.is_on());
-                assert_eq!(s.current_power(), 50.0);
+                assert!((s.current_power() - 50.0).abs() < f64::EPSILON);
             }
             SmartDevice::Thermometer(_) => panic!("ожидалась розетка"),
         }

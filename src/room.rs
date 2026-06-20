@@ -6,14 +6,17 @@ pub struct Room {
 }
 
 impl Room {
+    #[must_use]
     pub fn new(name: String, devices: Vec<SmartDevice>) -> Self {
         Self { name, devices }
     }
 
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.name
     }
 
+    #[must_use]
     pub fn device(&self, index: usize) -> &SmartDevice {
         &self.devices[index]
     }
@@ -65,9 +68,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected = "index out of bounds")]
     fn device_out_of_bounds_panics() {
         let room = sample_room();
-        room.device(99);
+        let _ = room.device(99);
     }
 }

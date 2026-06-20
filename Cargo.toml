@@ -13,3 +13,4 @@ path = "src/main.rs"
 
 [lints.clippy]
 all = "warn"
+pedantic = "warn"
