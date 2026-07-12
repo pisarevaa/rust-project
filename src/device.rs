@@ -1,29 +1,38 @@
+use crate::report::Report;
 use crate::socket::SmartSocket;
 use crate::thermometer::SmartThermometer;
 
+#[derive(Debug)]
 pub enum SmartDevice {
     Thermometer(SmartThermometer),
     Socket(SmartSocket),
 }
 
-impl SmartDevice {
-    pub fn report(&self) {
+impl From<SmartThermometer> for SmartDevice {
+    fn from(thermometer: SmartThermometer) -> Self {
+        Self::Thermometer(thermometer)
+    }
+}
+
+impl From<SmartSocket> for SmartDevice {
+    fn from(socket: SmartSocket) -> Self {
+        Self::Socket(socket)
+    }
+}
+
+impl Report for SmartDevice {
+    fn report(&self) -> String {
         match self {
-            SmartDevice::Thermometer(t) => {
-                println!("  Термометр «{}»: {:.1}°C", t.name(), t.temperature());
+            Self::Thermometer(t) => {
+                format!("термометр показывает {:.1} °C", t.temperature())
             }
-            SmartDevice::Socket(s) => {
+            Self::Socket(s) => {
                 let state = if s.is_on() {
                     "включена"
                 } else {
                     "выключена"
                 };
-                println!(
-                    "  Розетка «{}»: {}, мощность {:.1} Вт",
-                    s.name(),
-                    state,
-                    s.current_power()
-                );
+                format!("розетка {state}, мощность {:.1} Вт", s.current_power())
             }
         }
     }
@@ -32,14 +41,11 @@ impl SmartDevice {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::socket::SmartSocket;
-    use crate::thermometer::SmartThermometer;
 
     #[test]
-    fn thermometer_variant_exposes_temperature() {
-        let d = SmartDevice::Thermometer(SmartThermometer::new("Т".to_string(), 20.0));
-        d.report();
-        match d {
+    fn thermometer_converts_into_device() {
+        let device: SmartDevice = SmartThermometer::new(20.0).into();
+        match device {
             SmartDevice::Thermometer(t) => {
                 assert!((t.temperature() - 20.0).abs() < f64::EPSILON);
             }
@@ -48,17 +54,33 @@ mod tests {
     }
 
     #[test]
-    fn socket_variant_reflects_state() {
-        let mut socket = SmartSocket::new("Р".to_string(), 50.0);
-        socket.turn_on();
-        let d = SmartDevice::Socket(socket);
-        d.report();
-        match d {
+    fn socket_converts_into_device() {
+        let device: SmartDevice = SmartSocket::new(50.0).into();
+        match device {
             SmartDevice::Socket(s) => {
-                assert!(s.is_on());
-                assert!((s.current_power() - 50.0).abs() < f64::EPSILON);
+                assert!(!s.is_on());
             }
             SmartDevice::Thermometer(_) => panic!("ожидалась розетка"),
         }
+    }
+
+    #[test]
+    fn thermometer_report_shows_temperature() {
+        let device: SmartDevice = SmartThermometer::new(21.5).into();
+        assert_eq!(device.report(), "термометр показывает 21.5 °C");
+    }
+
+    #[test]
+    fn switched_on_socket_report_shows_power() {
+        let mut socket = SmartSocket::new(150.0);
+        socket.turn_on();
+        let device: SmartDevice = socket.into();
+        assert_eq!(device.report(), "розетка включена, мощность 150.0 Вт");
+    }
+
+    #[test]
+    fn switched_off_socket_report_shows_zero_power() {
+        let device: SmartDevice = SmartSocket::new(150.0).into();
+        assert_eq!(device.report(), "розетка выключена, мощность 0.0 Вт");
     }
 }
