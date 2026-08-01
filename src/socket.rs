@@ -1,22 +1,16 @@
+#[derive(Debug)]
 pub struct SmartSocket {
-    name: String,
     is_on: bool,
     power: f64,
 }
 
 impl SmartSocket {
     #[must_use]
-    pub fn new(name: String, power: f64) -> Self {
+    pub fn new(power: f64) -> Self {
         Self {
-            name,
             is_on: false,
             power,
         }
-    }
-
-    #[must_use]
-    pub fn name(&self) -> &str {
-        &self.name
     }
 
     pub fn turn_on(&mut self) {
@@ -48,14 +42,14 @@ mod tests {
 
     #[test]
     fn new_socket_is_off_with_zero_power() {
-        let s = SmartSocket::new("Розетка".to_string(), 100.0);
+        let s = SmartSocket::new(100.0);
         assert!(!s.is_on());
         assert!((s.current_power() - 0.0).abs() < f64::EPSILON);
     }
 
     #[test]
     fn turn_on_reports_power_and_state() {
-        let mut s = SmartSocket::new("Розетка".to_string(), 100.0);
+        let mut s = SmartSocket::new(100.0);
         s.turn_on();
         assert!(s.is_on());
         assert!((s.current_power() - 100.0).abs() < f64::EPSILON);
@@ -63,7 +57,7 @@ mod tests {
 
     #[test]
     fn turn_off_resets_power() {
-        let mut s = SmartSocket::new("Розетка".to_string(), 100.0);
+        let mut s = SmartSocket::new(100.0);
         s.turn_on();
         s.turn_off();
         assert!(!s.is_on());
