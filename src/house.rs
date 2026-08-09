@@ -46,6 +46,12 @@ impl SmartHouse {
         self.rooms.keys().map(String::as_str)
     }
 
+    /// Возвращает устройство по имени комнаты и имени устройства.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`SmartHouseError::RoomNotFound`], если такой комнаты нет,
+    /// и [`SmartHouseError::DeviceNotFound`], если в комнате нет устройства.
     pub fn device(&self, room: &str, device: &str) -> Result<&SmartDevice, SmartHouseError> {
         self.room(room)
             .ok_or_else(|| SmartHouseError::RoomNotFound {
@@ -58,6 +64,12 @@ impl SmartHouse {
             })
     }
 
+    /// Возвращает изменяемую ссылку на устройство.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`SmartHouseError::RoomNotFound`], если такой комнаты нет,
+    /// и [`SmartHouseError::DeviceNotFound`], если в комнате нет устройства.
     pub fn device_mut(
         &mut self,
         room: &str,

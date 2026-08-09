@@ -1,4 +1,4 @@
-/// Имитатор умной розетки: неблокирующий TCP-сервер.
+//! Имитатор умной розетки: неблокирующий TCP-сервер.
 
 use crate::error::DeviceError;
 use crate::protocol::{Command, Response, REQUEST_LEN};
@@ -20,6 +20,12 @@ pub struct SocketSimulator {
 }
 
 impl SocketSimulator {
+    /// Занимает адрес и начинает принимать клиентов в неблокирующем режиме.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Io`], если адрес занят либо не удалось
+    /// перевести слушателя в неблокирующий режим.
     pub fn bind(address: impl ToSocketAddrs, power: f64) -> Result<Self, DeviceError> {
         let listener = TcpListener::bind(address)?;
         listener.set_nonblocking(true)?;

@@ -1,4 +1,4 @@
-/// Имитатор умной розетки.
+//! Имитатор умной розетки.
 
 use smart_home::simulator::socket::SocketSimulator;
 use std::process::ExitCode;

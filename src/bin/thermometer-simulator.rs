@@ -1,4 +1,4 @@
-/// Имитатор умного термометра.
+//! Имитатор умного термометра.
 
 use smart_home::config::SimulatorConfig;
 use smart_home::simulator::thermometer::ThermometerSimulator;

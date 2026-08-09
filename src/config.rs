@@ -1,4 +1,4 @@
-/// Конфигурация имитатора термометра.
+//! Конфигурация имитатора термометра.
 
 use std::fmt;
 use std::fs;
@@ -12,10 +12,24 @@ pub struct SimulatorConfig {
 }
 
 impl SimulatorConfig {
+    /// Читает конфигурацию из файла.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`ConfigError::Io`], если файл не удалось прочитать,
+    /// либо ошибку разбора из [`SimulatorConfig::parse`].
     pub fn load(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
         Self::parse(&fs::read_to_string(path)?)
     }
 
+    /// Разбирает конфигурацию из текста вида `ключ = значение`.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`ConfigError::Syntax`], если в строке нет знака «=»;
+    /// [`ConfigError::UnknownKey`] на неизвестном ключе;
+    /// [`ConfigError::InvalidValue`], если значение ключа недопустимо;
+    /// [`ConfigError::MissingKey`], если обязательный ключ отсутствует.
     pub fn parse(text: &str) -> Result<Self, ConfigError> {
         let mut address = None;
         let mut period = None;

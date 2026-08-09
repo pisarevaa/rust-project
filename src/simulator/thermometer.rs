@@ -1,4 +1,4 @@
-/// Имитатор умного термометра: неблокирующая отправка UDP-пакетов.
+//! Имитатор умного термометра: неблокирующая отправка UDP-пакетов.
 
 use crate::config::SimulatorConfig;
 use crate::error::DeviceError;
@@ -20,6 +20,13 @@ pub struct ThermometerSimulator {
 }
 
 impl ThermometerSimulator {
+    /// Создает имитатор, разрешая адрес получателя из конфигурации.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Io`], если адрес не удалось разрешить
+    /// или не удалось создать UDP-сокет, и [`DeviceError::Protocol`],
+    /// если разрешение адреса не дало ни одного результата.
     pub fn new(config: SimulatorConfig) -> Result<Self, DeviceError> {
         let target = config
             .address
@@ -43,6 +50,13 @@ impl ThermometerSimulator {
         self.target
     }
 
+    /// Генерирует очередное показание и отправляет его получателю.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Io`], если отправка не удалась.
+    /// Переполнение буфера отправки ошибкой не считается: показание
+    /// возвращается, а пакет молча теряется.
     pub fn send_next(&mut self) -> Result<f64, DeviceError> {
         let temperature = self.generator.next_temperature();
         match self

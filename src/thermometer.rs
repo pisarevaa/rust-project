@@ -1,4 +1,5 @@
-/// Умный термометр, получающий температуру пакетами UDP.
+//! Умный термометр, получающий температуру пакетами UDP.
+
 use crate::error::DeviceError;
 use crate::protocol::{decode_temperature, TEMPERATURE_PACKET_LEN};
 use std::fmt;
@@ -12,6 +13,12 @@ use std::time::Duration;
 const POLL_TIMEOUT: Duration = Duration::from_millis(100);
 
 pub trait TemperatureSource: fmt::Debug + Send + Sync {
+    /// Возвращает последнее известное показание температуры.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::NoData`], если ни одного показания
+    /// еще не получено.
     fn temperature(&self) -> Result<f64, DeviceError>;
 }
 
@@ -24,6 +31,12 @@ pub struct UdpTemperatureSource {
 }
 
 impl UdpTemperatureSource {
+    /// Занимает UDP-адрес и запускает фоновый прием показаний.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Io`], если адрес занят, не удалось выставить
+    /// таймаут чтения или узнать локальный адрес сокета.
     pub fn bind(address: impl ToSocketAddrs) -> Result<Self, DeviceError> {
         let socket = UdpSocket::bind(address)?;
         // Таймаут нужен, чтобы поток регулярно просыпался и проверял флаг остановки.
@@ -138,6 +151,11 @@ impl SmartThermometer {
         }
     }
 
+    /// Создает термометр, слушающий показания по UDP.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Io`], если занять адрес не удалось.
     pub fn bind(address: impl ToSocketAddrs) -> Result<Self, DeviceError> {
         Ok(Self::new(UdpTemperatureSource::bind(address)?))
     }
@@ -147,6 +165,11 @@ impl SmartThermometer {
         Self::new(MockTemperatureSource::new(temperature))
     }
 
+    /// Возвращает последнее полученное показание.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::NoData`], если показаний еще не было.
     pub fn temperature(&self) -> Result<f64, DeviceError> {
         self.source.temperature()
     }

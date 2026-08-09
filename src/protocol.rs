@@ -1,4 +1,4 @@
-/// Протокол обмена с умной розеткой поверх TCP.
+//! Протокол обмена с умной розеткой поверх TCP.
 
 use crate::error::DeviceError;
 
@@ -11,6 +11,12 @@ pub fn encode_temperature(temperature: f64) -> [u8; TEMPERATURE_PACKET_LEN] {
     temperature.to_be_bytes()
 }
 
+/// Восстанавливает температуру из UDP-пакета.
+///
+/// # Errors
+///
+/// Возвращает [`DeviceError::Protocol`], если длина пакета
+/// отличается от [`TEMPERATURE_PACKET_LEN`].
 pub fn decode_temperature(packet: &[u8]) -> Result<f64, DeviceError> {
     let bytes: [u8; TEMPERATURE_PACKET_LEN] = packet.try_into().map_err(|_| {
         DeviceError::Protocol(format!(
@@ -38,6 +44,12 @@ impl Command {
         }
     }
 
+    /// Разбирает код команды.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Protocol`], если байт не соответствует
+    /// ни одной известной команде.
     pub fn from_byte(byte: u8) -> Result<Self, DeviceError> {
         match byte {
             0 => Ok(Self::TurnOn),
@@ -65,6 +77,12 @@ impl Response {
         bytes
     }
 
+    /// Разбирает ответ розетки.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Protocol`], если байт состояния
+    /// отличается от 0 и 1.
     pub fn from_bytes(bytes: [u8; RESPONSE_LEN]) -> Result<Self, DeviceError> {
         let is_on = match bytes[0] {
             0 => false,

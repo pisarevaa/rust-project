@@ -1,4 +1,5 @@
-/// Умная розетка, управляемая синхронно по TCP.
+//! Умная розетка, управляемая синхронно по TCP.
+
 use crate::error::DeviceError;
 use crate::protocol::{Command, Response, RESPONSE_LEN};
 use std::fmt;
@@ -12,6 +13,14 @@ pub const REQUEST_TIMEOUT: Duration = Duration::from_secs(3);
 
 /// Канал связи с розеткой.
 pub trait SocketTransport: fmt::Debug + Send + Sync {
+    /// Отправляет команду розетке и возвращает ее ответ.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает ошибку, если обмен с розеткой не состоялся:
+    /// [`DeviceError::Timeout`] при истечении времени ожидания,
+    /// [`DeviceError::Io`] при сбое связи, [`DeviceError::Protocol`]
+    /// при непонятном ответе.
     fn request(&self, command: Command) -> Result<Response, DeviceError>;
 }
 
@@ -22,6 +31,12 @@ pub struct TcpTransport {
 }
 
 impl TcpTransport {
+    /// Устанавливает TCP-соединение с розеткой.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Io`], если соединение не удалось установить
+    /// или не удалось выставить таймауты чтения и записи.
     pub fn connect(address: impl ToSocketAddrs) -> Result<Self, DeviceError> {
         let stream = TcpStream::connect(address)?;
         stream.set_read_timeout(Some(REQUEST_TIMEOUT))?;
@@ -130,6 +145,11 @@ impl SmartSocket {
         }
     }
 
+    /// Создает розетку поверх постоянного TCP-соединения.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает [`DeviceError::Io`], если соединение установить не удалось.
     pub fn connect(address: impl ToSocketAddrs) -> Result<Self, DeviceError> {
         Ok(Self::new(TcpTransport::connect(address)?))
     }
@@ -144,22 +164,47 @@ impl SmartSocket {
         Self::new(MockTransport::new(power))
     }
 
+    /// Запрашивает текущее состояние розетки.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает ошибку канала связи — см. [`SocketTransport::request`].
     pub fn status(&self) -> Result<Response, DeviceError> {
         self.transport.request(Command::Status)
     }
 
+    /// Включает розетку.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает ошибку канала связи — см. [`SocketTransport::request`].
     pub fn turn_on(&self) -> Result<(), DeviceError> {
         self.transport.request(Command::TurnOn).map(|_| ())
     }
 
+    /// Выключает розетку.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает ошибку канала связи — см. [`SocketTransport::request`].
     pub fn turn_off(&self) -> Result<(), DeviceError> {
         self.transport.request(Command::TurnOff).map(|_| ())
     }
 
+    /// Сообщает, включена ли розетка.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает ошибку канала связи — см. [`SocketTransport::request`].
     pub fn is_on(&self) -> Result<bool, DeviceError> {
         Ok(self.status()?.is_on)
     }
 
+    /// Возвращает текущую потребляемую мощность.
+    ///
+    /// # Errors
+    ///
+    /// Возвращает ошибку канала связи — см. [`SocketTransport::request`].
     pub fn current_power(&self) -> Result<f64, DeviceError> {
         Ok(self.status()?.power)
     }
