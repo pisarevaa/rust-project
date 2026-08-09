@@ -2,6 +2,8 @@
 name = "smart-home"
 version = "0.1.0"
 edition = "2021"
+# Бинарников несколько, поэтому `cargo run` без аргументов запускает пример из ДЗ1-2.
+default-run = "smart-home"
 
 [lib]
 name = "smart_home"

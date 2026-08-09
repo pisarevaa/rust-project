@@ -67,21 +67,23 @@ mod tests {
 
     fn sample_room() -> Room {
         let mut room = Room::new();
-        room.add_device("Термометр", SmartThermometer::new(22.0));
-        room.add_device("Розетка", SmartSocket::new(60.0));
+        room.add_device("Термометр", SmartThermometer::mock(22.0));
+        room.add_device("Розетка", SmartSocket::mock(60.0));
         room
     }
 
     #[test]
     fn add_device_returns_none_for_a_fresh_name() {
         let mut room = Room::new();
-        assert!(room.add_device("Розетка", SmartSocket::new(60.0)).is_none());
+        assert!(room
+            .add_device("Розетка", SmartSocket::mock(60.0))
+            .is_none());
     }
 
     #[test]
     fn add_device_returns_the_displaced_device() {
         let mut room = sample_room();
-        let displaced = room.add_device("Розетка", SmartSocket::new(90.0));
+        let displaced = room.add_device("Розетка", SmartSocket::mock(90.0));
         assert!(matches!(displaced, Some(SmartDevice::Socket(_))));
     }
 
@@ -120,8 +122,8 @@ mod tests {
         let Some(SmartDevice::Socket(s)) = room.device_mut("Розетка") else {
             panic!("ожидалась розетка");
         };
-        s.turn_on();
-        assert!(s.is_on());
+        s.turn_on().expect("имитация отвечает");
+        assert!(s.is_on().expect("имитация отвечает"));
     }
 
     #[test]
@@ -150,8 +152,8 @@ mod tests {
     #[test]
     fn macro_builds_room_with_trailing_comma() {
         let room = room! {
-            "Термометр" => SmartThermometer::new(22.0),
-            "Розетка" => SmartSocket::new(60.0),
+            "Термометр" => SmartThermometer::mock(22.0),
+            "Розетка" => SmartSocket::mock(60.0),
         };
         assert_eq!(
             room.device_names().collect::<Vec<_>>(),
@@ -162,8 +164,8 @@ mod tests {
     #[test]
     fn macro_builds_room_without_trailing_comma() {
         let room = room! {
-            "Термометр" => SmartThermometer::new(22.0),
-            "Розетка" => SmartSocket::new(60.0)
+            "Термометр" => SmartThermometer::mock(22.0),
+            "Розетка" => SmartSocket::mock(60.0)
         };
         assert_eq!(room.device_names().count(), 2);
     }
