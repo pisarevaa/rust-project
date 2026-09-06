@@ -1,7 +1,10 @@
+pub mod config;
 pub mod device;
 pub mod error;
 pub mod house;
+pub mod protocol;
 pub mod report;
 pub mod room;
+pub mod simulator;
 pub mod socket;
 pub mod thermometer;

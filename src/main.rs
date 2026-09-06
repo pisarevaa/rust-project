@@ -17,22 +17,24 @@ fn main() {
     house.add_room(
         "Гостиная",
         room! {
-            "Термометр гостиной" => SmartThermometer::new(21.5),
-            "Розетка гостиной" => SmartSocket::new(150.0),
+            "Термометр гостиной" => SmartThermometer::mock(21.5),
+            "Розетка гостиной" => SmartSocket::mock(150.0),
         },
     );
     house.add_room(
         "Кухня",
         room! {
-            "Термометр кухни" => SmartThermometer::new(24.0),
-            "Розетка кухни" => SmartSocket::new(200.0),
+            "Термометр кухни" => SmartThermometer::mock(24.0),
+            "Розетка кухни" => SmartSocket::mock(200.0),
         },
     );
 
     for (room, device) in [("Гостиная", "Розетка гостиной"), ("Кухня", "Розетка кухни")]
     {
-        if let Ok(SmartDevice::Socket(socket)) = house.device_mut(room, device) {
-            socket.turn_on();
+        if let Ok(SmartDevice::Socket(socket)) = house.device(room, device) {
+            if let Err(e) = socket.turn_on() {
+                eprintln!("не удалось включить «{device}»: {e}");
+            }
         }
     }
 
@@ -56,7 +58,6 @@ fn main() {
     demo_errors(&house);
 }
 
-/// Динамическое добавление и удаление комнаты.
 fn demo_dynamic_rooms(house: &mut SmartHouse) {
     println!();
     println!("=== Динамическое управление комнатами ===");
@@ -77,14 +78,13 @@ fn demo_dynamic_rooms(house: &mut SmartHouse) {
     );
 }
 
-/// Динамическое добавление и удаление устройства.
 fn demo_dynamic_devices(house: &mut SmartHouse) {
     println!();
     println!("=== Динамическое управление устройствами ===");
 
     let bedroom = house.room_mut("Спальня").expect("комната была добавлена");
-    bedroom.add_device("Термометр спальни", SmartThermometer::new(19.0));
-    bedroom.add_device("Ночник", SmartSocket::new(15.0));
+    bedroom.add_device("Термометр спальни", SmartThermometer::mock(19.0));
+    bedroom.add_device("Ночник", SmartSocket::mock(15.0));
     println!("Добавили два устройства в «Спальня»:");
     print_report(house.room("Спальня").expect("комната была добавлена"));
 
@@ -101,7 +101,6 @@ fn demo_dynamic_devices(house: &mut SmartHouse) {
     print_report(house);
 }
 
-/// Обработка ошибок сквозного доступа к устройству.
 fn demo_errors(house: &SmartHouse) {
     println!();
     println!("=== Обработка ошибок ===");

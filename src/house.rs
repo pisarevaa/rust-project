@@ -49,8 +49,9 @@ impl SmartHouse {
     /// Возвращает устройство по имени комнаты и имени устройства.
     ///
     /// # Errors
-    /// [`SmartHouseError::RoomNotFound`], если комнаты нет;
-    /// [`SmartHouseError::DeviceNotFound`], если комната есть, а устройства в ней нет.
+    ///
+    /// Возвращает [`SmartHouseError::RoomNotFound`], если такой комнаты нет,
+    /// и [`SmartHouseError::DeviceNotFound`], если в комнате нет устройства.
     pub fn device(&self, room: &str, device: &str) -> Result<&SmartDevice, SmartHouseError> {
         self.room(room)
             .ok_or_else(|| SmartHouseError::RoomNotFound {
@@ -66,7 +67,9 @@ impl SmartHouse {
     /// Возвращает изменяемую ссылку на устройство.
     ///
     /// # Errors
-    /// Те же, что у [`SmartHouse::device`].
+    ///
+    /// Возвращает [`SmartHouseError::RoomNotFound`], если такой комнаты нет,
+    /// и [`SmartHouseError::DeviceNotFound`], если в комнате нет устройства.
     pub fn device_mut(
         &mut self,
         room: &str,
@@ -111,7 +114,7 @@ mod tests {
         house.add_room(
             "Кухня",
             room! {
-                "Розетка" => SmartSocket::new(60.0),
+                "Розетка" => SmartSocket::mock(60.0),
             },
         );
         house
@@ -161,7 +164,7 @@ mod tests {
     fn room_mut_allows_adding_a_device() {
         let mut house = sample_house();
         let kitchen = house.room_mut("Кухня").expect("комната была добавлена");
-        kitchen.add_device("Термометр", SmartThermometer::new(24.0));
+        kitchen.add_device("Термометр", SmartThermometer::mock(24.0));
         assert_eq!(house.room("Кухня").unwrap().device_names().count(), 2);
     }
 
@@ -214,8 +217,8 @@ mod tests {
         let SmartDevice::Socket(socket) = device else {
             panic!("ожидалась розетка");
         };
-        socket.turn_on();
-        assert!(socket.is_on());
+        socket.turn_on().expect("имитация отвечает");
+        assert!(socket.is_on().expect("имитация отвечает"));
     }
 
     #[test]
@@ -235,7 +238,7 @@ mod tests {
         house.add_room(
             "Гостиная",
             room! {
-                "Термометр" => SmartThermometer::new(21.5),
+                "Термометр" => SmartThermometer::mock(21.5),
             },
         );
         assert_eq!(
