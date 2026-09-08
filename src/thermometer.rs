@@ -2,6 +2,7 @@
 
 use crate::error::DeviceError;
 use crate::protocol::{decode_temperature, TEMPERATURE_PACKET_LEN};
+use crate::report::Report;
 use std::fmt;
 use std::io::ErrorKind;
 use std::net::{SocketAddr, ToSocketAddrs, UdpSocket};
@@ -172,6 +173,15 @@ impl SmartThermometer {
     /// Возвращает [`DeviceError::NoData`], если показаний еще не было.
     pub fn temperature(&self) -> Result<f64, DeviceError> {
         self.source.temperature()
+    }
+}
+
+impl Report for SmartThermometer {
+    fn report(&self) -> String {
+        match self.temperature() {
+            Ok(temperature) => format!("термометр показывает {temperature:.1} °C"),
+            Err(e) => format!("термометр недоступен: {e}"),
+        }
     }
 }
 

@@ -2,6 +2,7 @@
 
 use crate::error::DeviceError;
 use crate::protocol::{Command, Response, RESPONSE_LEN};
+use crate::report::Report;
 use std::fmt;
 use std::io::{ErrorKind, Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
@@ -207,6 +208,22 @@ impl SmartSocket {
     /// Возвращает ошибку канала связи — см. [`SocketTransport::request`].
     pub fn current_power(&self) -> Result<f64, DeviceError> {
         Ok(self.status()?.power)
+    }
+}
+
+impl Report for SmartSocket {
+    fn report(&self) -> String {
+        match self.status() {
+            Ok(status) => {
+                let state = if status.is_on {
+                    "включена"
+                } else {
+                    "выключена"
+                };
+                format!("розетка {state}, мощность {:.1} Вт", status.power)
+            }
+            Err(e) => format!("розетка недоступна: {e}"),
+        }
     }
 }
 

@@ -1,3 +1,4 @@
+use crate::builder::{NoRooms, SmartHouseBuilder};
 use crate::device::SmartDevice;
 use crate::error::SmartHouseError;
 use crate::report::Report;
@@ -18,6 +19,11 @@ impl SmartHouse {
             name: name.into(),
             rooms: BTreeMap::new(),
         }
+    }
+
+    #[must_use]
+    pub fn builder(name: impl Into<String>) -> SmartHouseBuilder<NoRooms> {
+        SmartHouseBuilder::new(name)
     }
 
     #[must_use]
