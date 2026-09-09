@@ -23,21 +23,8 @@ impl From<SmartSocket> for SmartDevice {
 impl Report for SmartDevice {
     fn report(&self) -> String {
         match self {
-            Self::Thermometer(t) => match t.temperature() {
-                Ok(temperature) => format!("термометр показывает {temperature:.1} °C"),
-                Err(e) => format!("термометр недоступен: {e}"),
-            },
-            Self::Socket(s) => match s.status() {
-                Ok(status) => {
-                    let state = if status.is_on {
-                        "включена"
-                    } else {
-                        "выключена"
-                    };
-                    format!("розетка {state}, мощность {:.1} Вт", status.power)
-                }
-                Err(e) => format!("розетка недоступна: {e}"),
-            },
+            Self::Thermometer(t) => t.report(),
+            Self::Socket(s) => s.report(),
         }
     }
 }
