@@ -1,0 +1,12 @@
+[package]
+name = "socket-dynamic-app"
+version = "0.1.0"
+edition = "2021"
+description = "Демонстрация умной розетки, загружаемой динамически в runtime"
+
+[dependencies]
+libloading = "0.8"
+smart-socket-ffi = { path = "../smart-socket-ffi" }
+
+[lints]
+workspace = true

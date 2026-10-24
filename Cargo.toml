@@ -13,6 +13,25 @@ path = "src/lib.rs"
 name = "smart-home"
 path = "src/main.rs"
 
-[lints.clippy]
+[lints]
+workspace = true
+
+[workspace]
+members = [
+    ".",
+    "crates/smart-socket-ffi",
+    "crates/socket-static-app",
+    "crates/socket-dynamic-app",
+]
+# Без этого команды в корне затрагивали бы только пакет smart-home.
+default-members = [
+    ".",
+    "crates/smart-socket-ffi",
+    "crates/socket-static-app",
+    "crates/socket-dynamic-app",
+]
+resolver = "2"
+
+[workspace.lints.clippy]
 all = "warn"
 pedantic = "warn"

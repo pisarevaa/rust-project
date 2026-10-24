@@ -1,0 +1,15 @@
+[package]
+name = "smart-socket-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "Умная розетка с Си ABI"
+
+[lib]
+name = "smart_socket_ffi"
+crate-type = ["rlib", "staticlib", "cdylib"]
+
+[dependencies]
+smart-home = { path = "../.." }
+
+[lints]
+workspace = true
