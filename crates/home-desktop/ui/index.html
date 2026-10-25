@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Умный дом</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="main.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">⌂</span>
+        <h1>Умный дом</h1>
+        <span class="backend" id="backend-url" title="Адрес backend-сервиса"></span>
+      </div>
+      <div class="actions">
+        <button type="button" id="refresh" class="ghost">Обновить</button>
+        <button type="button" id="open-report">Отчет о доме</button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast" role="alert" hidden>
+      <span id="toast-text"></span>
+      <button type="button" id="toast-close" class="icon" aria-label="Закрыть">×</button>
+    </div>
+
+    <main class="layout">
+      <section class="panel rooms">
+        <h2>Комнаты</h2>
+        <div id="rooms-list" class="list" aria-live="polite"></div>
+        <form id="room-form" class="form" autocomplete="off">
+          <label for="room-name">Новая комната</label>
+          <div class="row">
+            <input id="room-name" name="name" placeholder="Например, Кухня" maxlength="64" required />
+            <button type="submit">Добавить</button>
+          </div>
+          <p class="form-error" hidden></p>
+        </form>
+      </section>
+
+      <section class="panel room" id="room-panel">
+        <div class="placeholder">Выберите комнату слева или добавьте новую</div>
+      </section>
+
+      <section class="panel device" id="device-panel">
+        <div class="placeholder">Выберите устройство, чтобы увидеть подробности</div>
+      </section>
+    </main>
+
+    <template id="device-form-template">
+      <form class="form" autocomplete="off">
+        <label>Новое устройство</label>
+        <input name="name" placeholder="Название" maxlength="64" required />
+        <div class="row">
+          <select name="kind" aria-label="Тип">
+            <option value="socket">Розетка</option>
+            <option value="thermometer">Термометр</option>
+            <option value="light">Светильник</option>
+          </select>
+          <select name="status" aria-label="Состояние">
+            <option value="off">Выключено</option>
+            <option value="on">Включено</option>
+            <option value="offline">Не в сети</option>
+          </select>
+        </div>
+        <button type="submit">Добавить устройство</button>
+        <p class="form-error" hidden></p>
+      </form>
+    </template>
+
+    <dialog id="report-dialog">
+      <div class="dialog-head">
+        <h2>Отчет о доме</h2>
+        <button type="button" id="report-close" class="icon" aria-label="Закрыть">×</button>
+      </div>
+      <div id="report-body"></div>
+    </dialog>
+  </body>
+</html>

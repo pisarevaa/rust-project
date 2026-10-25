@@ -1,0 +1,24 @@
+[package]
+name = "home-desktop"
+version = "0.1.0"
+edition = "2021"
+description = "Desktop-клиент умного дома на Tauri"
+
+[lib]
+name = "home_desktop"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+home-api = { path = "../home-api" }
+reqwest = { version = "0.13", default-features = false, features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = [] }
+
+[dev-dependencies]
+home-backend = { path = "../home-backend" }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net"] }
+
+[lints]
+workspace = true
