@@ -2,3 +2,5 @@
 /target
 /docs
 .DS_Store
+# Схемы, которые генерирует tauri-build
+/crates/home-desktop/gen

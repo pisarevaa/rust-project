@@ -1,0 +1,18 @@
+[package]
+name = "home-backend"
+version = "0.1.0"
+edition = "2021"
+description = "REST backend-сервис умного дома (данные хранятся в памяти)"
+
+[dependencies]
+axum = { version = "0.8", features = ["macros"] }
+home-api = { path = "../home-api" }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal"] }
+
+[dev-dependencies]
+reqwest = { version = "0.13", default-features = false, features = ["json"] }
+serde_json = "1"
+
+[lints]
+workspace = true
